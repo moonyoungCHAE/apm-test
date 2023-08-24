@@ -1,6 +1,7 @@
 package main
 
 import (
+	"apm-test-application/golang_application/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -9,7 +10,7 @@ import (
 )
 
 func main() {
-	MySQLInit()
+	sql.MySQLInit()
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
@@ -22,7 +23,7 @@ func main() {
 	})
 
 	r.GET("/golang/db", func(c *gin.Context) {
-		msg := GetFruits()
+		msg := sql.GetFruits()
 		c.JSON(http.StatusOK, msg)
 	})
 

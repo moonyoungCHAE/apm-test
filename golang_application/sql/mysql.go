@@ -1,4 +1,4 @@
-package main
+package sql
 
 import (
 	"database/sql"
@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var dbSource = "root:password@tcp(localhsot:3300)/test_db"
+var dbSource = "root:password@tcp(localhost:3300)/test_db"
 
 func MySQLInit() error {
 	db, err := sql.Open("mysql", dbSource)
