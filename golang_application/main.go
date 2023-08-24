@@ -3,31 +3,54 @@ package main
 import (
 	"apm-test-application/golang_application/sql"
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"github.com/aws/aws-xray-sdk-go/awsplugins/ec2"
+	"github.com/aws/aws-xray-sdk-go/xray"
+	"github.com/aws/aws-xray-sdk-go/xraylog"
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 )
 
+func init() {
+	// conditionally load plugin
+	if os.Getenv("ENVIRONMENT") != "local" {
+		ec2.Init()
+	}
+
+	xray.Configure(xray.Config{
+		ServiceVersion: "1.2.3",
+	})
+
+	xray.SetLogger(xraylog.NewDefaultLogger(os.Stderr, xraylog.LogLevelError))
+	os.Setenv("AWS_XRAY_TRACING_NAME", "test_service_name")
+	//os.Setenv("AWS_XRAY_DAEMON_ADDRESS", "172.17.0.2:2000")
+}
+
 func main() {
-	sql.MySQLInit()
+	if err := sql.MySQLInit(); err != nil {
+		log.Println("")
+	}
 
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
+	http.Handle("/", xray.Handler(xray.NewFixedSegmentNamer("MyApp"), http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello!"))
+	})))
+
+	http.Handle("/ping", xray.Handler(xray.NewFixedSegmentNamer("MyApp"), http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		PingFunction1("ping start")
-		c.String(http.StatusOK, "pong")
-	})
+		w.Write([]byte("pong!"))
+	})))
 
-	r.GET("/golang", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "golang application received message")
-	})
+	http.Handle("/golang", xray.Handler(xray.NewFixedSegmentNamer("MyApp"), http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("golang application received messag"))
+	})))
 
-	r.GET("/golang/db", func(c *gin.Context) {
-		msg := sql.GetFruits()
-		c.JSON(http.StatusOK, msg)
-	})
+	http.Handle("/golang/db", xray.Handler(xray.NewFixedSegmentNamer("MyApp"), http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		msg := sql.GetFruits(r.Context())
+		w.Write([]byte(msg))
+	})))
 
-	r.Run(":8081")
+	http.ListenAndServe(":8081", nil)
 }
 
 func PingFunction1(arg1 string) {

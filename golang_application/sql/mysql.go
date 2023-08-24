@@ -1,14 +1,16 @@
 package sql
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"github.com/aws/aws-xray-sdk-go/xray"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"time"
 )
 
-var dbSource = "root:password@tcp(localhost:3300)/test_db"
+var dbSource = "root:password@tcp(localhost:3306)/test_db"
 
 func MySQLInit() error {
 	db, err := sql.Open("mysql", dbSource)
@@ -36,14 +38,11 @@ func MySQLInit() error {
 	return nil
 }
 
-func GetFruits() string {
-	db, err := sql.Open("mysql", dbSource)
+func GetFruits(ctx context.Context) string {
+	db, err := xray.SQLContext("mysql", dbSource)
 	defer db.Close()
-	if err != nil {
-		return err.Error()
-	}
 
-	rows, err := db.Query(`select * from fruit order by id desc limit 1`)
+	rows, err := db.QueryContext(ctx, `select * from fruit order by id desc limit 1`)
 	if err != nil {
 		return err.Error()
 	}
