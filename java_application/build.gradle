@@ -19,6 +19,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation("software.amazon.opentelemetry:aws-opentelemetry-agent:1.29.0")
 }
 
 tasks.named('test') {
