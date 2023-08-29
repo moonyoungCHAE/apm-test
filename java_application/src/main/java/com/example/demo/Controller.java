@@ -25,13 +25,13 @@ public class Controller {
 
     @GetMapping("/golang")
     public ResponseEntity<String> SendGolangAPI() {
-        ResponseEntity<String> response = restTemplate.getForEntity("localhost:8081/golang", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/golang", String.class);
         return response;
     }
 
     @GetMapping("/golang/db")
     public ResponseEntity<String> SendGolangDBAPI() {
-        ResponseEntity<String> response = restTemplate.getForEntity("localhost:8081/golang/db", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/golang/db", String.class);
         return response;
     }
 
