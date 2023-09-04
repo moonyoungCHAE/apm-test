@@ -49,7 +49,7 @@ public class Controller {
         AmazonDynamoDB amazonDynamoDb = AmazonDynamoDBClientBuilder.standard()
                 .withCredentials(InstanceProfileCredentialsProvider.getInstance())
                 .withEndpointConfiguration(endpointConfiguration).build();;
-        ScanResult result = amazonDynamoDb.scan(new ScanRequest("tommoy_test"));
+        ScanResult result = amazonDynamoDb.scan(new ScanRequest("tommoy-test"));
         return result.getCount();
     }
 
