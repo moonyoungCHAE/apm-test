@@ -98,6 +98,11 @@ func main() {
 		svc := dynamodb.New(sess)
 		result, err := svc.GetItem(&dynamodb.GetItemInput{
 			TableName: aws.String("tommoy-test"),
+			Key: map[string]*dynamodb.AttributeValue{
+				"title": {
+					S: aws.String("title"),
+				},
+			},
 		})
 		if err != nil {
 			fmt.Println("get item fail: " + err.Error())
