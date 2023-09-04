@@ -96,7 +96,7 @@ func main() {
 		}
 		svc := dynamodb.New(sess)
 		xray.AWS(svc.Client)
-		result, err := svc.Scan(&dynamodb.ScanInput{
+		result, err := svc.ScanWithContext(r.Context(), &dynamodb.ScanInput{
 			TableName: aws.String("tommoy-test"),
 		})
 		if err != nil {
