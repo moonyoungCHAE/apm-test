@@ -67,7 +67,7 @@ func main() {
 			Region:   aws.String("ap-northeast-2"), // AWS Lambda 함수가 있는 리전
 			Endpoint: &endpoint,
 		})
-
+		xray.AWS(svc.Client)
 		// Lambda 함수 호출
 		result, err := svc.Invoke(&lambda.InvokeInput{
 			FunctionName:   aws.String("tommoy-test"),     // Lambda 함수 이름
@@ -95,7 +95,7 @@ func main() {
 			return
 		}
 		svc := dynamodb.New(sess)
-
+		xray.AWS(svc.Client)
 		result, err := svc.Scan(&dynamodb.ScanInput{
 			TableName: aws.String("tommoy-test"),
 		})
