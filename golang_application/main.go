@@ -2,12 +2,10 @@ package main
 
 import (
 	"apm-test-application/golang_application/sql"
-	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/aws/aws-xray-sdk-go/awsplugins/ec2"
 	"github.com/aws/aws-xray-sdk-go/xray"
@@ -16,6 +14,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 func init() {
@@ -96,13 +95,9 @@ func main() {
 			return
 		}
 		svc := dynamodb.New(sess)
-		result, err := svc.GetItem(&dynamodb.GetItemInput{
+
+		result, err := svc.Scan(&dynamodb.ScanInput{
 			TableName: aws.String("tommoy-test"),
-			Key: map[string]*dynamodb.AttributeValue{
-				"title": {
-					S: aws.String("title"),
-				},
-			},
 		})
 		if err != nil {
 			fmt.Println("get item fail: " + err.Error())
@@ -111,19 +106,9 @@ func main() {
 		}
 		fmt.Println(result)
 
-		var m map[string]interface{}
-		if err := dynamodbattribute.UnmarshalMap(result.Item, &m); err != nil {
-			fmt.Println("unmarshal error ", err.Error())
-			w.Write([]byte("unmarshal error " + err.Error()))
-			return
-		}
-		bytes, err := json.Marshal(&m)
-		if err != nil {
-			fmt.Println("marshal error ", err.Error())
-			w.Write([]byte("marshal error " + err.Error()))
-			return
-		}
-		w.Write(bytes)
+		count := *result.Count
+		b := []byte(strconv.FormatInt(count, 10))
+		w.Write(b)
 	})))
 
 	http.ListenAndServe(":8081", nil)
