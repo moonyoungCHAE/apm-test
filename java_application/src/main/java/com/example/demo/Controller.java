@@ -1,9 +1,11 @@
 package com.example.demo;
 
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
+import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,6 +47,7 @@ public class Controller {
         AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "ap-northeast-2");
 
         AmazonDynamoDB amazonDynamoDb = AmazonDynamoDBClientBuilder.standard()
+                .withCredentials(InstanceProfileCredentialsProvider.getInstance())
                 .withEndpointConfiguration(endpointConfiguration).build();;
         ScanResult result = amazonDynamoDb.scan(new ScanRequest("tommoy_test"));
         return result.getCount();
