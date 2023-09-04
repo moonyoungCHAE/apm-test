@@ -4,14 +4,21 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	zipkinsql "github.com/openzipkin-contrib/zipkin-go-sql"
+	zipkin "github.com/openzipkin/zipkin-go"
 	"log"
 	"time"
 )
 
-var dbSource = "root:password@tcp(localhost:3300)/test_db"
+var dbSource = "root:password@tcp(localhost:3306)/test_db"
 
-func MySQLInit() error {
-	db, err := sql.Open("mysql", dbSource)
+func MySQLInit(tracer *zipkin.Tracer) error {
+	driverName, err := zipkinsql.Register("mysql", tracer, zipkinsql.WithAllTraceOptions())
+	if err != nil {
+		log.Fatalf("unable to register zipkin driver: %v\n", err)
+	}
+
+	db, err := sql.Open(driverName, dbSource)
 	defer db.Close()
 
 	if err != nil {
@@ -36,8 +43,13 @@ func MySQLInit() error {
 	return nil
 }
 
-func GetFruits() string {
-	db, err := sql.Open("mysql", dbSource)
+func GetFruits(tracer *zipkin.Tracer) string {
+	driverName, err := zipkinsql.Register("mysql", tracer, zipkinsql.WithAllTraceOptions())
+	if err != nil {
+		log.Fatalf("unable to register zipkin driver: %v\n", err)
+	}
+
+	db, err := sql.Open(driverName, dbSource)
 	defer db.Close()
 	if err != nil {
 		return err.Error()
